@@ -40,7 +40,7 @@ class MealsController < ApplicationController
 end
 
 # All the action names: [index show edit create update delete new]
-
+# -------------------    QUICK CHEATSHEET   ---------------------------
 # Index: retrieves a listing of the model
 # Show: gets the data of an specific id
 # New: empty instance of the model to call a simple form

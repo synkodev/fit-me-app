@@ -1,0 +1,6 @@
+<% @meals.each do |meal| %>
+  <%= meal.name %>
+<% end %>
+
+<%= link_to "Registrar", new_meal_path%>
+<%= link_to "Voltar", root_path %>

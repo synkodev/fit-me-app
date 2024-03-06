@@ -1,6 +1,8 @@
+<ul>
 <% @meals.each do |meal| %>
-  <%= meal.name %>
+  <li><%= link_to meal.name, meal_ingredients_path(meal) %></li>
 <% end %>
+</ul>
 
 <%= link_to "Registrar", new_meal_path%>
 <%= link_to "Voltar", root_path %>

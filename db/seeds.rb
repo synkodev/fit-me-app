@@ -47,22 +47,40 @@ puts "Spoonacular API Key is #{api_key}"
 recipes = JSON.parse(URI.open("https://api.spoonacular.com/recipes/random?number=#{number_of_recipes}&apiKey=#{api_key}").read, symbolize_names: true)[:recipes]
 
 # Interating over random recipes received in the response of the API
-recipes.each do |recipe|
+recipes.each_with_index do |recipe, index|
+  puts "\nRecipe #{index + 1} - #{recipe[:title].capitalize}\n"
+
   # Each recipe must return the name (title), a default image (image), the ingredients list (for each: name, measure)
-  meal = Meal.new(name: recipe[:title],
+  new_meal = Meal.new(name: recipe[:title],
                   time_of_consumption: Time.now - 1,
                   category: Meal::TYPE_OF_MEAL[rand(0...Meal::TYPE_OF_MEAL.count)],
                   user: User.first)
-  meal.save!
+  new_meal.save!
 
   # Saving the ingredients from the recipe that haven't been added before to the database
+  puts "========== Creating INGREDIENTS and relationship with Meal ===========\n\n"
+
   recipe[:extendedIngredients].each do |ingredient|
     puts "#{ingredient[:amount]}#{ingredient[:measures][:metric][:unitLong].blank? ? " " : " " + ingredient[:measures][:metric][:unitLong] + " of "}#{ingredient[:name]}"
+
+    new_ingredient = Ingredient.new(name: ingredient[:name], calories_per_grams: 0)
+
+    # The line of code below guarantees there will be a value for new_ingredient, even if the object above isn't saved bc of model validations
+    if new_ingredient.valid?
+      new_ingredient.save!
+    else
+      new_ingredient = Ingredient.where(name: ingredient[:name])[0]
+    end
+
+    # Adds the relationship between the ingredient and the meal it belongs to
+    new_meal_ingredient = MealIngredient.new(meal: new_meal,
+                                             ingredient: new_ingredient,
+                                             amount: ingredient[:amount],
+                                             unit: ingredient[:measures][:metric][:unitLong])
+    new_meal_ingredient.save! unless new_meal_ingredient.invalid?
   end
 end
 
-puts "Created #{Meal.count} meals succesfully!"
-
-puts "============== CREATING INGREDIENTS ===============\n\n"
+puts "\n\nCreated #{Meal.count} meals succesfully!"
 
 puts "===================== END OF SEED! ============================="

@@ -13,10 +13,10 @@ puts "============= DESTROYING CURRENT DATA ==========="
 
 # Calling the Active Record method #destroy_all to empty all records for each model
 # Order of creation: User > Meal > Ingredient > Nutrient
-User.destroy_all
 Nutrient.destroy_all
 Ingredient.destroy_all
 Meal.destroy_all
+User.destroy_all
 
 puts "============== CREATING USERS ===============\n\n"
 
@@ -29,7 +29,7 @@ user.save!
 puts "Test user created!\n\n"
 
 # Instantiating variables for further usage
-api_key = ENV['SPOONACULAR_API_KEY'];
+api_key = ENV['SPOONACULAR_API_KEY']
 number_of_recipes = rand(1..10)
 
 puts "============== CREATING NEW MEALS ===============\n\n"
@@ -54,8 +54,15 @@ recipes.each do |recipe|
                   category: Meal::TYPE_OF_MEAL[rand(0...Meal::TYPE_OF_MEAL.count)],
                   user: User.first)
   meal.save!
+
+  # Saving the ingredients from the recipe that haven't been added before to the database
+  recipe[:extendedIngredients].each do |ingredient|
+    puts "#{ingredient[:amount]}#{ingredient[:measures][:metric][:unitLong].blank? ? " " : " " + ingredient[:measures][:metric][:unitLong] + " of "}#{ingredient[:name]}"
+  end
 end
 
 puts "Created #{Meal.count} meals succesfully!"
+
+puts "============== CREATING INGREDIENTS ===============\n\n"
 
 puts "===================== END OF SEED! ============================="
